@@ -48,12 +48,17 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: "img/docusaurus-social-card.jpg",
+      image: "img/sanji.png",
       navbar: {
         title: "My Site",
         logo: {
           alt: "My Site Logo",
-          src: "img/logo.svg",
+          src: "img/idea.png",
+          style: {
+            width: "2rem",
+            height: "2rem",
+            borderRadius: "50%",
+          },
         },
         items: [
           {
@@ -64,7 +69,7 @@ const config = {
           },
 
           {
-            href: "https://github.com/facebook/docusaurus",
+            href: "https://github.com/Gaurav4604",
             label: "GitHub",
             position: "right",
           },
@@ -74,28 +79,15 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "Socials",
             items: [
               {
-                label: "Tutorial",
-                to: "/docs/intro",
-              },
-            ],
-          },
-          {
-            title: "Community",
-            items: [
-              {
-                label: "Stack Overflow",
-                href: "https://stackoverflow.com/questions/tagged/docusaurus",
+                label: "LinkedIn",
+                href: "https://www.linkedin.com/in/gaurav-singh-8737701a4/",
               },
               {
-                label: "Discord",
-                href: "https://discordapp.com/invite/docusaurus",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/docusaurus",
+                label: "GitHub",
+                href: "https://github.com/Gaurav4604",
               },
             ],
           },
@@ -103,17 +95,13 @@ const config = {
             title: "More",
             items: [
               {
-                label: "Blog",
-                to: "/blog",
-              },
-              {
-                label: "GitHub",
-                href: "https://github.com/facebook/docusaurus",
+                label: "Portfolio",
+                to: "https://iamgaurav.info",
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Gaurav4604, Inc.`,
       },
       prism: {
         theme: lightCodeTheme,

@@ -13,6 +13,15 @@ authors:
     image_url: https://github.com/slorber.png
 tags: [hello, docusaurus-v2]
 image: https://i.imgur.com/mErPwqL.png
+sidebar_custom_props:
+  {
+    "description": "This description can be used in the swizzled DocCard",
+    "more-props": "fucking work",
+  }
 ---
 
 # Bro
+
+import DocCard from "../../../src/theme/DocCard";
+
+<DocCard item={{ type: "link", href: "", label: "run man" }} />

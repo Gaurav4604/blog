@@ -8,8 +8,8 @@ import {
 import isInternalUrl from "@docusaurus/isInternalUrl";
 import { translate } from "@docusaurus/Translate";
 import type { Props } from "@theme/DocCard";
-
 import styles from "./styles.module.css";
+
 import type {
   PropSidebarItemCategory,
   PropSidebarItemLink,
@@ -94,7 +94,17 @@ function CardCategory({
 }
 
 function CardLink({ item }: { item: PropSidebarItemLink }): JSX.Element {
-  const icon = isInternalUrl(item.href) ? "📄️" : "🔗";
+  const icon =
+    item.customProps && item.customProps.icon ? (
+      <img
+        src={item.customProps.icon as string}
+        className={clsx(styles.customPropsIcon)}
+      />
+    ) : isInternalUrl(item.href) ? (
+      "📄️"
+    ) : (
+      "🔗"
+    );
   const doc = useDocById(item.docId ?? undefined);
   return (
     <CardLayout

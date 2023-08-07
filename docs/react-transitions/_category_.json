@@ -1,0 +1,8 @@
+{
+  "label": "Tutorial - React Transitions",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "The sections listed below are on different types of transitions we will be walking through in react."
+  }
+}

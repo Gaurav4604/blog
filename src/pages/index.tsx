@@ -5,6 +5,7 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 
 import styles from "./index.module.css";
+import { Redirect } from "@docusaurus/router";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -29,6 +30,7 @@ export default function Home(): JSX.Element {
     >
       <HomepageHeader />
       <main>
+        <Redirect to={"/blog/Overview"} />
         <h1>This will be filled when the time comes</h1>
       </main>
     </Layout>

@@ -24,15 +24,15 @@ function HomepageHeader() {
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />"
-    >
-      <HomepageHeader />
-      <main>
-        <Redirect to={"/blog/Overview"} />
-        <h1>This will be filled when the time comes</h1>
-      </main>
-    </Layout>
+    // <Layout
+    //   title={`Hello from ${siteConfig.title}`}
+    //   description="Description will go into a meta tag in <head />"
+    // >
+    //   <HomepageHeader />
+    // <main>
+    <Redirect to={"/blog/Overview"} />
+    // <h1>This will be filled when the time comes</h1>
+    // </main>
+    // </Layout>
   );
 }

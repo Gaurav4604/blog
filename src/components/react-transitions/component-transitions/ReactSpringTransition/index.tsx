@@ -8,37 +8,29 @@ import {
   config,
 } from "@react-spring/web";
 import ShrinkExpand from "./ShrinkExpand";
+import SlideAround from "./SlideAround";
 
 const ReactSpringTransition = () => {
   const translationSpringRef = useSpringRef();
   const scaleSpringRef = useSpringRef();
-  const [inDefault, setInDefault] = useState(false);
+  const [animate, setAnimate] = useState(false);
 
-  const { translation } = useSpring({
-    ref: translationSpringRef,
-    from: { translation: inDefault ? 0 : 100 },
-    to: { translation: inDefault ? 100 : 0 },
-  });
-
-  const handleClick = () => setInDefault(!inDefault);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setAnimate(!animate);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [animate]);
 
   useChain([scaleSpringRef, translationSpringRef], [0, 0], 1000);
 
   return (
-    <animated.div
-      ref={translationSpringRef}
-      onClick={handleClick}
-      style={{
-        width: 80,
-        height: 80,
-        background: "#ff6d6d",
-        borderRadius: 8,
-        x: translation,
-        position: "relative",
-      }}
-    >
-      <ShrinkExpand expand={inDefault} ref={scaleSpringRef} />
-    </animated.div>
+    <>
+      <SlideAround move={animate} ref={translationSpringRef} />
+      <ShrinkExpand expand={animate} ref={scaleSpringRef} />
+    </>
   );
 };
 

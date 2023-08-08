@@ -108,7 +108,8 @@ export const SimpleSlideAnimationController = () => {
     useSpring is actually computing a realtime value for us, based on our `to` and `from` parameters,
     on, the `translation` _key_ of the **object** <br/>
     (NOTE: this key can be anything that the user specifies). <br/> This key is then returned to us, by the `useSpring` hook, in the form
-    of a continuously changing value.
+    of a continuously changing (_animating_) value. <br/>
+    [learn more about `useSpring()` hook](https://www.react-spring.dev/docs/components/use-spring)
 
   2. Animation _control_
 
@@ -146,4 +147,5 @@ export const SimpleSlideAnimationController = () => {
 
   - we use the `animated.div` component provided by **react-spring** library, as it consumes the provided transformation,
     via the `useSpring` hook, and tries to apply a valid animation onto
-    the specified style property (in our case, the "x" value) without us needing to _configure_ anything.
+    the specified style property (in our case, the `x` value) without us needing to _configure_ anything. <br/>
+    [learn more about `<animated/>` elements](https://www.react-spring.dev/docs/concepts/animated-elements)

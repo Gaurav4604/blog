@@ -8,12 +8,12 @@ import {
 import React, { forwardRef, useEffect, useState } from "react";
 
 type Props = {
-  expand?: boolean;
+  move?: boolean;
   preview?: boolean;
 };
 
-const ShrinkExpand = forwardRef(
-  (props: Props, scaleSpringRef: SpringRef<Lookup<any>>) => {
+const SlideAround = forwardRef(
+  (props: Props, slideAroundSpringRef: SpringRef<Lookup<any>>) => {
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
@@ -26,32 +26,28 @@ const ShrinkExpand = forwardRef(
       return () => {
         if (props.preview) clearTimeout(timeout);
       };
-    }, [animate]);
+    }, [animate, props.preview]);
 
     useEffect(() => {
-      setAnimate(props.expand);
-    }, [props.expand]);
+      setAnimate(props.move);
+    }, [props.move]);
 
-    const { scale } = useSpring({
-      ref: scaleSpringRef,
-      from: {
-        scale: animate ? 0 : 1,
-      },
-      to: {
-        scale: animate ? 1 : 0,
-      },
+    const { translation } = useSpring({
+      ref: slideAroundSpringRef,
+      from: { translation: animate ? 0 : 100 },
+      to: { translation: animate ? 100 : 0 },
     });
     return (
       <animated.div
         style={{
           width: 80,
-          background: "#ff6",
+          background: "#ff6d6d",
           height: 80,
           borderRadius: 8,
-          scale,
+          x: translation,
         }}
       />
     );
   }
 );
-export default ShrinkExpand;
+export default SlideAround;

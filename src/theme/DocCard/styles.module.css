@@ -7,6 +7,7 @@
   border: 1px solid var(--ifm-color-emphasis-200);
   transition: all var(--ifm-transition-fast) ease;
   transition-property: border, box-shadow;
+  max-width: "50%";
 }
 
 .cardContainer:hover {
@@ -21,10 +22,12 @@
 .cardTitle {
   font-size: 1.2rem;
   display: flex;
+  overflow-wrap: break-word;
 }
 
 .cardDescription {
   font-size: 0.8rem;
+  overflow-wrap: break-word;
 }
 
 .customPropsIcon {

@@ -1,0 +1,72 @@
+---
+sidebar_position: 2
+slug: recipe-2
+description: A react spring tutorial for a box that shrinks and expands
+authors:
+  - name: Gaurav Singh
+    title: creator of this site
+    url: https://github.com/Gaurav4604
+
+tags: [component-transitions, react, react-spring, shrink-expand]
+---
+
+import ShrinkExpand from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ShrinkExpand";
+import { useState } from "react";
+
+# Recipe 2
+
+export function SimpleSlideAnimationController() {
+  const [animate, setAnimate] = useState(false);
+  return (
+    <React.Fragment>
+      <button onClick={() => setAnimate(!animate)}>{`click to ${
+        animate ? "stop" : "start"
+      } animation`}</button>
+      <div style={{ marginTop: "1rem" }} />
+      <ShrinkExpand preview={animate} />
+    </React.Fragment>
+  );
+}
+
+## What we're gonna be building
+
+<SimpleSlideAnimationController />
+
+<div style={{ marginTop: "1rem" }} />
+
+```jsx
+import { animated, useSpring } from "@react-spring/web";
+import React, { useEffect, useState } from "react";
+
+const ShrinkExpand = () => {
+  const [animate, setAnimate] = useState(false);
+
+  const { scale } = useSpring({
+    from: { scale: animate ? 0 : 1 },
+    to: { translation: animate ? 1 : 0 },
+  });
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setAnimate(!animate);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [animate]);
+
+  return (
+    <animated.div
+      style={{
+        width: 80,
+        background: "#ff6d6d",
+        height: 80,
+        borderRadius: 8,
+        scale,
+      }}
+    />
+  );
+};
+```
+
+<div style={{ marginTop: "1rem" }} />

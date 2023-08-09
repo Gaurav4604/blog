@@ -26,7 +26,7 @@ const ShrinkExpand = forwardRef(
       return () => {
         if (props.preview) clearTimeout(timeout);
       };
-    }, [animate]);
+    }, [animate, props.preview]);
 
     useEffect(() => {
       setAnimate(props.expand);

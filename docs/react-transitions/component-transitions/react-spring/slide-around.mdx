@@ -1,0 +1,152 @@
+---
+sidebar_position: 1
+slug: recipe-1
+description: A react spring tutorial for a box that slides around
+authors:
+  - name: Gaurav Singh
+    title: creator of this site
+    url: https://github.com/Gaurav4604
+
+tags: [component-transitions, react, react-spring, slide-around]
+---
+
+import SlideAround from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/SlideAround";
+import { useState } from "react";
+
+# Recipe 1
+
+export function SimpleSlideAnimationController() {
+  const [animate, setAnimate] = useState(true);
+  return (
+    <React.Fragment>
+      <button onClick={() => setAnimate(!animate)}>{`click to ${
+        animate ? "stop" : "start"
+      } animation`}</button>
+      <div style={{ marginTop: "1rem" }} />
+      <SlideAround preview={animate} />
+    </React.Fragment>
+  );
+}
+
+## What we're gonna be building
+
+<SimpleSlideAnimationController />
+
+<div style={{ marginTop: "1rem" }} />
+
+## Code
+
+```jsx
+import { animated, useSpring } from "@react-spring/web";
+import React, { useEffect, useState } from "react";
+
+const SlideAround = () => {
+  const [animate, setAnimate] = useState(false);
+
+  const { translation } = useSpring({
+    from: { translation: animate ? 0 : 100 },
+    to: { translation: animate ? 100 : 0 },
+  });
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setAnimate(!animate);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [animate]);
+
+  return (
+    <animated.div
+      style={{
+        width: 80,
+        background: "#ff6d6d",
+        height: 80,
+        borderRadius: 8,
+        x: translation,
+      }}
+    />
+  );
+};
+```
+
+<div style={{ marginTop: "1rem" }} />
+
+### Code Breakdown
+
+The above code can be divided into 3 sections
+
+1. #### Animation _definition_
+
+```jsx
+const [animate, setAnimate] = useState(false);
+
+const { translation } = useSpring({
+  from: { translation: animate ? 0 : 100 },
+  to: { translation: animate ? 100 : 0 },
+});
+```
+
+- _react-spring_ provides a `useSpring` hook, which is a animation controller of sorts.
+
+- it provides configuration of variety of parameters, but to keep things simple,
+  we will use the `to` and `from` parameters for setting-up an **initial** and **final**
+  position for our _animation_ and let **react-spring** take care of the rest.
+
+- with a mutable state variable, we will tell _react-spring_ that we want to either move from **0** to **100**
+  _or_ move from **100** to **0** based on what the `animate` variable is set to, where 0 and 100 refer to the range between which we will apply our **transform _translate_ ** value in CSS.<br/>
+  (NOTE: this is done via the animated component, by react-spring, as mentioned below)
+
+- notice how we're destructuring `translation` from the `useSpring` hook, this is because,
+  useSpring is actually computing a realtime value for us, based on our `to` and `from` parameters,
+  on, the `translation` _key_ of the **object** <br/>
+  (NOTE: this key can be anything that the user specifies). <br/> This key is then returned to us, by the `useSpring` hook, in the form
+  of a continuously changing (_animating_) value. <br/>
+  [learn more about `useSpring()` hook](https://www.react-spring.dev/docs/components/use-spring)
+
+2. #### Animation _control_
+
+```jsx
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setAnimate(!animate);
+  }, 1000);
+  return () => {
+    clearTimeout(timeout);
+  };
+}, [animate]);
+```
+
+- This code block is simply meant to trigger the animation every 1 second.
+
+- By calling `setAnimate`, with a `true` or `false` **alternatively**, we force our `useSpring` hook, to return us a value <br/>
+  that triggers animation, between the _to_ and _from_ specified.
+
+3. #### component _declaration_
+
+```jsx
+<animated.div
+  style={{
+    width: 80,
+    background: "#ff6d6d",
+    height: 80,
+    borderRadius: 8,
+    x: translation,
+  }}
+/>
+```
+
+- finally, we simply apply the _transformation_ (stored on `transition` variable) onto our _animated component_, in the axis we want the component to translate along.
+
+- we use the `animated.div` component provided by **react-spring** library, as it consumes the provided transformation,
+  via the `useSpring` hook, and tries to apply a valid animation onto
+  the specified style property.<br />
+  In our case, we use the the `x` property, as it refers to the `translate` property
+  in CSS, for x-axis.<br/> (NOTE: this interpretation is done by react-spring automatically)<br />
+  [learn more about `<animated />` elements](https://www.react-spring.dev/docs/concepts/animated-elements)
+
+## Conclusion
+
+I hope that cleared up the basics of working with react-spring, if so, lets move onto the next tutorial, where we make a box
+shrink and expand!

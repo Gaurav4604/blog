@@ -16,7 +16,7 @@ import { useState } from "react";
 # Recipe 2
 
 export function SimpleSlideAnimationController() {
-  const [animate, setAnimate] = useState(false);
+  const [animate, setAnimate] = useState(true);
   return (
     <React.Fragment>
       <button onClick={() => setAnimate(!animate)}>{`click to ${
@@ -34,16 +34,18 @@ export function SimpleSlideAnimationController() {
 
 <div style={{ marginTop: "1rem" }} />
 
+## Code
+
 ```jsx
 import { animated, useSpring } from "@react-spring/web";
 import React, { useEffect, useState } from "react";
 
 const ShrinkExpand = () => {
-  const [animate, setAnimate] = useState(false);
+  const [animate, setAnimate] = useState(true);
 
   const { scale } = useSpring({
     from: { scale: animate ? 0 : 1 },
-    to: { translation: animate ? 1 : 0 },
+    to: { scale: animate ? 1 : 0 },
   });
 
   useEffect(() => {
@@ -59,7 +61,7 @@ const ShrinkExpand = () => {
     <animated.div
       style={{
         width: 80,
-        background: "#ff6d6d",
+        background: "#ff6",
         height: 80,
         borderRadius: 8,
         scale,
@@ -70,3 +72,63 @@ const ShrinkExpand = () => {
 ```
 
 <div style={{ marginTop: "1rem" }} />
+
+### Code Breakdown
+
+As with [Recipe 1](./recipe-1), our code can be divided into 3 sections
+
+1. #### Animation _definition_
+
+```jsx
+const [animate, setAnimate] = useState(false);
+
+const { scale } = useSpring({
+  from: { scale: animate ? 0 : 1 },
+  to: { translation: animate ? 1 : 0 },
+});
+```
+
+- The controller follows the same logic as **Recipe 1**, except, we replace transition with **scale**, <br />
+  and let our value range between _0_ and _1_. [know more
+  here](./recipe-1#animation-definition)
+
+2. #### Animation _control_
+
+```jsx
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setAnimate(!animate);
+  }, 1000);
+  return () => {
+    clearTimeout(timeout);
+  };
+}, [animate]);
+```
+
+- You must be starting to see a trend here, our animation controller looks very similar, <br/>
+  to [Recipe 1 Animation Control](recipe-1#animation-control), this is because it is performing the **same action**,
+  except on a _different_ style property of the element.
+
+3. #### component _declaration_
+
+```jsx
+<animated.div
+  style={{
+    width: 80,
+    background: "#ff6",
+    height: 80,
+    borderRadius: 8,
+    scale,
+  }}
+/>
+```
+
+- like [Recipe 1 component declaration](recipe-1#component-declaration), we declare our component,
+  and apply a different style property, **scale** onto it.<br/> Thus allowing for our component to Shrink and Grow!
+
+## Conclusion
+
+I hope that helps understand a _variation_, to apply
+react-spring based value as style property to create an animated component.
+Since this tutorial was very similar to [Recipe 1](./recipe-1), I have added links to the similar sections for help.
+If you're clear with these, lets move on to making these components more reusable!

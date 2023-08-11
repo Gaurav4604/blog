@@ -7,7 +7,7 @@ import {
   useChain,
   config,
 } from "@react-spring/web";
-import ShrinkExpand from "./ShrinkExpand";
+import ShrinkGrow from "./ShrinkGrow";
 import SlideAround from "./SlideAround";
 
 const ReactSpringTransition = () => {
@@ -24,12 +24,18 @@ const ReactSpringTransition = () => {
     };
   }, [animate]);
 
-  useChain([scaleSpringRef, translationSpringRef], [0, 0], 1000);
+  useChain(
+    animate
+      ? [scaleSpringRef, translationSpringRef]
+      : [translationSpringRef, scaleSpringRef],
+    animate ? [0.4, 0] : [0, 0.4],
+    1000
+  );
 
   return (
     <>
       <SlideAround move={animate} ref={translationSpringRef} />
-      <ShrinkExpand expand={animate} ref={scaleSpringRef} />
+      <ShrinkGrow expand={animate} ref={scaleSpringRef} />
     </>
   );
 };

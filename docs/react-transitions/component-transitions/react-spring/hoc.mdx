@@ -1,0 +1,159 @@
+---
+sidebar_position: 3
+slug: recipe-3
+description: A react spring tutorial for a converting react components into HOC, for more reusability and extensibility
+authors:
+  - name: Gaurav Singh
+    title: creator of this site
+    url: https://github.com/Gaurav4604
+
+tags: [component-transitions, react, react-spring, HOC]
+---
+
+import ReactSpringTransition from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition";
+import ShrinkGrow from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ShrinkGrow";
+import { useState } from "react";
+
+# Recipe 3
+
+## Motivation
+
+This section seems new, thats true, since we've already built our base components, we could very well take
+these components, and build out a complex and interactive UI from it, and it would work. But its not optimal. The scoping we've
+followed, shows how big our codebase can become, if we wanted to coordinate and control these animations to be in a flow.
+This, is not ideal, and so we're gonna try to make our components into HOCs, the hard way, to gain the most knowledge possible, from it.
+
+## Code Architecture
+
+- Earlier when we built our components, it was a **one-track** process
+
+  1.  we decided what animated properties our component needs
+  2.  we used the right kind of animation controller to modify the required property
+  3.  we assigned our component, those properties
+
+and voila! we were done, as it turns out, this is suitable only in small projects or with isolated components.
+In real-world projects, components usually _talk_ or _react_ to one another, and are supposed to follow the **SOLID** principles.
+
+- We're gonna try to make our component feel as standalone as possible, while making it reusable (isn't **react** all about _reusability_?),
+  this requires us to follow a very strategic yet interesting process
+
+  1. Define what the base component is. (eg: it is a container that shrinks and grows)
+  2. Define the parameters you want to be able to modify in the component, via props and refs (we will try to modify just about everything)
+  3. implement the component using this design philosophy.
+
+export function AnimateOnDemand() {
+  const [animate, setAnimate] = useState(true);
+  return (
+    <React.Fragment>
+      <button onClick={() => setAnimate(!animate)}>{`click to ${
+        animate ? "shrink" : "grow"
+      } the box`}</button>
+      <div style={{ marginTop: "1rem" }} />
+      <ShrinkGrow expand={animate} />
+    </React.Fragment>
+  );
+}
+
+## What we're gonna be building (Part 1)
+
+<AnimateOnDemand />
+<br />
+
+As a side-note, we'll be building our component using **typescript**,this will
+mean making our component logic a bit more complex, but trust me, its better to
+write it this way, in the long run.
+
+## Code
+
+```tsx
+type Props = {
+  expand?: boolean;
+} & PropsWithChildren;
+
+const ShrinkGrow = forwardRef(
+  (props: Props, shrinkGrowRef: SpringRef<Lookup<any>>) => {
+    const { scale } = useSpring({
+      ref: shrinkGrowRef,
+      from: {
+        scale: props.expand ? 0 : 1,
+      },
+      to: {
+        scale: props.expand ? 1 : 0,
+      },
+    });
+    return (
+      <animated.div
+        style={{
+          width: 80,
+          background: "#ff6",
+          height: 80,
+          borderRadius: 8,
+          scale,
+        }}
+      >
+        {props.children}
+      </animated.div>
+    );
+  }
+);
+export default ShrinkGrow;
+```
+
+### Code Breakdown
+
+1. #### Props Defintion
+
+```tsx
+type Props = {
+  expand?: boolean;
+} & PropsWithChildren;
+```
+
+For people from the non-typescript world, this is just a static type declaration of what our props is allowed to accept, it helps with _linting_, prompts and
+auto-completion. In our case, we're letting the user pass.
+
+- expand (an abstract animation control via boolean)
+- children (to allow our component to be a parent component for any components, this component needs to wrap)
+- ref (this is defined by the `forwardRef`)
+
+2. #### HOC wrapper
+
+```tsx
+const ShrinkGrow = forwardRef(
+  (props: Props, shrinkGrowRef: SpringRef<Lookup<any>>) => {}
+);
+```
+
+Since our component is meant to be a HOC, we need to wrap our functional component with a `forwardRef`, i.e. a **forwardRef renderFunction**, this helps pass down
+a _reference_, via **props** we can use in our function component. <br/> (this is useful for tracking our component's animation state and/or trigger orchestrated animations). <br/>
+[learn more about HOC and forwardRef here.](https://react.dev/reference/react/forwardRef)
+
+The type of ref we want to accept is a SpringRef (a special type of ref object defined by `react-spring`), this is because we want our animation controller to have
+access to this **reference**, so that the **reference** can keep a track of the current animation process. <br/>
+(but why? you will know soon enough)
+
+3. #### Animation _definition_
+
+```jsx
+const { scale } = useSpring({
+  ref: shrinkGrowRef,
+  from: {
+    scale: props.expand ? 0 : 1,
+  },
+  to: {
+    scale: props.expand ? 1 : 0,
+  },
+});
+```
+
+The animation definition, for the most part, remains the same as the [first](./recipe-1#animation-control) and [second](./recipe-2#animation-control) recipe, except we're now **assigning a ref, to keep a track of this hook's state modification**,
+as `ref: shrinkGrowRef`.
+Everything else, remains exactly the same as the earlier recipes.
+
+## The Main Question!
+
+We added a ref handle, but why? We could've easily controlled our animation via props, so why the ref?
+As you know, refs are a _escape hatch_, from the react rules and system. This allows react-spring to control
+animation properties, without having to define every property via `useSpring`, for each component. It also allows
+**react-spring** to take control of the animation system over a larger set of components, and coordinate the
+animations, to portray them in a way that we want, _without_ having to do a lot of **heavy lifting** ourselves.

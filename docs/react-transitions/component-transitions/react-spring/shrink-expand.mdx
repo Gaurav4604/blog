@@ -1,21 +1,21 @@
 ---
 sidebar_position: 2
 slug: recipe-2
-description: A react spring tutorial for a box that shrinks and expands
+description: A react spring tutorial for a box that shrinks and grows
 authors:
   - name: Gaurav Singh
     title: creator of this site
     url: https://github.com/Gaurav4604
 
-tags: [component-transitions, react, react-spring, shrink-expand]
+tags: [component-transitions, react, react-spring, shrink-grow]
 ---
 
-import ShrinkExpand from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ShrinkExpand";
+import ShrinkGrow from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ShrinkGrow";
 import { useState } from "react";
 
 # Recipe 2
 
-export function SimpleSlideAnimationController() {
+export function SimpleShrinkGrowAnimationController() {
   const [animate, setAnimate] = useState(true);
   return (
     <React.Fragment>
@@ -23,14 +23,14 @@ export function SimpleSlideAnimationController() {
         animate ? "stop" : "start"
       } animation`}</button>
       <div style={{ marginTop: "1rem" }} />
-      <ShrinkExpand preview={animate} />
+      <ShrinkGrow preview={animate} />
     </React.Fragment>
   );
 }
 
 ## What we're gonna be building
 
-<SimpleSlideAnimationController />
+<SimpleShrinkGrowAnimationController />
 
 <div style={{ marginTop: "1rem" }} />
 
@@ -40,7 +40,7 @@ export function SimpleSlideAnimationController() {
 import { animated, useSpring } from "@react-spring/web";
 import React, { useEffect, useState } from "react";
 
-const ShrinkExpand = () => {
+const ShrinkGrow = () => {
   const [animate, setAnimate] = useState(true);
 
   const { scale } = useSpring({
@@ -75,7 +75,7 @@ const ShrinkExpand = () => {
 
 ### Code Breakdown
 
-As with [Recipe 1](./recipe-1), our code can be divided into 3 sections
+As with [Recipe 1](./recipe-1#code-breakdown), our code can be divided into 3 sections
 
 1. #### Animation _definition_
 
@@ -131,4 +131,4 @@ useEffect(() => {
 I hope that helps understand a _variation_, to apply
 react-spring based value as style property to create an animated component.
 Since this tutorial was very similar to [Recipe 1](./recipe-1), I have added links to the similar sections for help.
-If you're clear with these, lets move on to making these components more reusable!
+If you're clear with these, lets move on to making these components more reusable, using HOC architecture!

@@ -3,6 +3,8 @@
 
 # react-spring
 
+import DocCard from "../../../../src/theme/DocCard";
+
 **react-spring** is a powerful react library that allows the user to create
 _imperative_ animations, on the components the user wants to animate.
 
@@ -16,13 +18,25 @@ This is a set of recipes about how you can create an complex interactive react c
 
 - we're going to start small, by creating an simple box, which translates in the x-axis (or slides around in th x-axis).
 
-import DocCard from "../../../../src/theme/DocCard";
-
 <DocCard
   item={{
     type: "link",
     href: "./recipe-1",
     label: "Recipe 1",
     description: "A box that slides around",
+  }}
+/>
+
+### Recipe 2 (a box that shrinks and grows)
+
+- for this one, we build on our existing knowledge, by creating a similar project,
+  about a box that shrinks and grows
+
+<DocCard
+  item={{
+    type: "link",
+    href: "./recipe-2",
+    label: "Recipe 2",
+    description: "a box that shrinks and grows",
   }}
 />

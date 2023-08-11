@@ -5,15 +5,20 @@ import {
   useSpring,
   useSpringRef,
 } from "@react-spring/web";
-import React, { forwardRef, useEffect, useState } from "react";
+import React, {
+  PropsWithChildren,
+  forwardRef,
+  useEffect,
+  useState,
+} from "react";
 
 type Props = {
   expand?: boolean;
   preview?: boolean;
-};
+} & PropsWithChildren;
 
-const ShrinkExpand = forwardRef(
-  (props: Props, scaleSpringRef: SpringRef<Lookup<any>>) => {
+const ShrinkGrow = forwardRef(
+  (props: Props, shrinkGrowRef: SpringRef<Lookup<any>>) => {
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
@@ -33,7 +38,7 @@ const ShrinkExpand = forwardRef(
     }, [props.expand]);
 
     const { scale } = useSpring({
-      ref: scaleSpringRef,
+      ref: shrinkGrowRef,
       from: {
         scale: animate ? 0 : 1,
       },
@@ -50,8 +55,10 @@ const ShrinkExpand = forwardRef(
           borderRadius: 8,
           scale,
         }}
-      />
+      >
+        {props.children}
+      </animated.div>
     );
   }
 );
-export default ShrinkExpand;
+export default ShrinkGrow;

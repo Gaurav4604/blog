@@ -148,12 +148,33 @@ const { scale } = useSpring({
 
 The animation definition, for the most part, remains the same as the [first](./recipe-1#animation-control) and [second](./recipe-2#animation-control) recipe, except we're now **assigning a ref, to keep a track of this hook's state modification**,
 as `ref: shrinkGrowRef`.
-Everything else, remains exactly the same as the earlier recipes.
+Everything else, remains exactly the same as the earlier recipes. (try converting [recipe 1](./recipe-1), to follow an HOC architecture)
 
 ## The Main Question!
 
 We added a ref handle, but why? We could've easily controlled our animation via props, so why the ref?
-As you know, refs are a _escape hatch_, from the react rules and system. This allows react-spring to control
+As you know, refs are an _escape hatch_, from the react rules and system. This allows react-spring to control
 animation properties, without having to define every property via `useSpring`, for each component. It also allows
 **react-spring** to take control of the animation system over a larger set of components, and coordinate the
 animations, to portray them in a way that we want, _without_ having to do a lot of **heavy lifting** ourselves.
+
+## What we're gonna be building (Part 2)
+
+Now that we have our components laid out in an HOC architecture, we're ready to use some more tools provided by react-spring, meant to make life easier,
+while animating components using React. One such tool is going to be [`useChain`](https://www.react-spring.dev/docs/components/use-chain),
+that is used in parallel with [`useSpringRef`](https://react-spring.dev/docs/advanced/spring-ref). (Hence the initial setup via the HOC architecture)
+
+export function SimpleSpringTransitionAnimationController() {
+  const [animate, setAnimate] = useState(true);
+  return (
+    <React.Fragment>
+      <button onClick={() => setAnimate(!animate)}>{`click to ${
+        animate ? "stop" : "start"
+      } animation`}</button>
+      <div style={{ marginTop: "1rem" }} />
+      <ReactSpringTransition preview={animate} />
+    </React.Fragment>
+  );
+}
+
+<SimpleSpringTransitionAnimationController />

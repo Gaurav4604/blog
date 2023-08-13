@@ -10,19 +10,25 @@ import {
 import ShrinkGrow from "./ShrinkGrow";
 import SlideAround from "./SlideAround";
 
-const ReactSpringTransition = () => {
+type Props = {
+  preview?: boolean;
+};
+
+const ReactSpringTransition = (props: Props) => {
   const translationSpringRef = useSpringRef();
   const scaleSpringRef = useSpringRef();
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setAnimate(!animate);
-    }, 1000);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [animate]);
+    if (props.preview) {
+      const timeout = setTimeout(() => {
+        setAnimate(!animate);
+      }, 1000);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [animate, props.preview]);
 
   useChain(
     animate

@@ -125,7 +125,7 @@ const ShrinkGrow = forwardRef(
 ```
 
 Since our component is meant to be a HOC, we need to wrap our functional component with a `forwardRef`, i.e. a **forwardRef renderFunction**, this helps pass down
-a _reference_, via **props** we can use in our function component. <br/> (this is useful for tracking our component's animation state and/or trigger orchestrated animations). <br/>
+a _reference_, via **props** which we can use in our function component. <br/> (this is useful for tracking our component's animation state and/or trigger orchestrated animations). <br/>
 [learn more about HOC and forwardRef here.](https://react.dev/reference/react/forwardRef)
 
 The type of ref we want to accept is a SpringRef (a special type of ref object defined by `react-spring`), this is because we want our animation controller to have
@@ -178,3 +178,106 @@ export function SimpleSpringTransitionAnimationController() {
 }
 
 <SimpleSpringTransitionAnimationController />
+
+### Some Explanation
+
+As you can see, the above example transition for **ShrinkGrow** _lags_ behind the **SlideAround** by some amount _(0.4s to be precise)_.
+We're going to achieve this effect, using `useChain`, detailed explanation will be provided in [Code Breakdown](#code-breakdown-1).<br />
+**Make sure you've read and understand these recipes and sections before proceeding further :-**
+
+- [Recipe 1 (SlideAround)](./recipe-1)
+- [Recipe 2 (ShrinkGrow)](./recipe-2)
+- [Recipe 3 Part 1 (HOC architecture)](#what-were-gonna-be-building-part-1)
+
+## Code
+
+```tsx
+const ReactSpringTransition = () => {
+  const translationSpringRef = useSpringRef();
+  const scaleSpringRef = useSpringRef();
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setAnimate(!animate);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [animate]);
+
+  useChain([scaleSpringRef, translationSpringRef], [0.4, 0], 1000);
+
+  return (
+    <>
+      <SlideAround move={animate} ref={translationSpringRef} />
+      <ShrinkGrow expand={animate} ref={scaleSpringRef} />
+    </>
+  );
+};
+```
+
+### Code Breakdown
+
+1. #### The `useSpringRef`
+
+```tsx
+const translationSpringRef = useSpringRef();
+const scaleSpringRef = useSpringRef();
+```
+
+When we converted our components to use **HOC** architecture, we wrapped them with a `forwardRef` function, later accessed
+this `ref` via the component's `useSpring` hook. As we discussed, this is to store and modify the `useSpring` hook behaviour.
+For this to work, **react-spring** provides a hook, `useSpringRef`, which returns a _ref_, that works in tandem with `useSpring`
+to track and control the transitions on the defined component. <br/>
+[Learn more about the SpringRef here.](https://react-spring.dev/docs/advanced/spring-ref)
+
+2. #### Animation Configuration and Control
+
+```tsx
+const [animate, setAnimate] = useState(false);
+
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setAnimate(!animate);
+  }, 1000);
+  return () => {
+    clearTimeout(timeout);
+  };
+}, [animate]);
+```
+
+This is the process we have repeated for each component, and is a simple timeout operation, where we're changing the initial and final state to be transitioned
+**to** and **from**. For detailed explanation, checkout [Recipe 1.](./recipe-1#animation-control)
+
+3. #### The `useChain`
+
+```tsx
+useChain([scaleSpringRef, translationSpringRef], [0.4, 0], 1000);
+```
+
+Now we're getting to the meaty bit of this code, as you saw, our `ShrinkGrow` component, lags behind `SlideAround`, by **0.4s**. `useChain` is responsible
+for this effect, here we're passing `useChain` our assigned **refs**
+(`scaleSpringRef` and `translationSpringRef`), with a transition _delay_ for **each ref** _(0 and 0.4)_. Along with this, we're also specifying a duration for
+the entire transition group _(of 1 second)_. <br/>
+This forces our components to be controlled by `useChain`, thereby allowing configuration of these components to be defined by `useSpring`, but the actual
+orchestration of transitions, to be done by `useChain`. <br/>
+[Learn more about useChain here.](https://www.react-spring.dev/docs/components/use-chain)
+
+4. #### Component Defintion
+
+```tsx
+return (
+  <>
+    <SlideAround move={animate} ref={translationSpringRef} />
+    <ShrinkGrow expand={animate} ref={scaleSpringRef} />
+  </>
+);
+```
+
+We simply use our pre-existing HOC components, and assign them the valid refs and animation control props. <br/> (NOTE I've recreated the SlideAround, and included a `move` prop using the same process as for ShrinkGrow).
+
+## Conclusion
+
+And Voila! Now we can orchestrate complex transitions, to create beautiful user experiences (as we will in later recipes). <br/>
+**react-spring** takes care of all the heavy lifting for us.

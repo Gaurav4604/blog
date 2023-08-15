@@ -29,7 +29,7 @@ const SlideAround = forwardRef(
     }, [animate, props.preview]);
 
     useEffect(() => {
-      setAnimate(props.move);
+      setAnimate(Boolean(props.move));
     }, [props.move]);
 
     const { translation } = useSpring({

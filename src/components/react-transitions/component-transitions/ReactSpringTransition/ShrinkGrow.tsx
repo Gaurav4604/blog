@@ -34,7 +34,7 @@ const ShrinkGrow = forwardRef(
     }, [animate, props.preview]);
 
     useEffect(() => {
-      setAnimate(props.expand);
+      setAnimate(Boolean(props.expand));
     }, [props.expand]);
 
     const { scale } = useSpring({

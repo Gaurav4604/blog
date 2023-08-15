@@ -30,13 +30,7 @@ const ReactSpringTransition = (props: Props) => {
     }
   }, [animate, props.preview]);
 
-  useChain(
-    animate
-      ? [scaleSpringRef, translationSpringRef]
-      : [translationSpringRef, scaleSpringRef],
-    animate ? [0.4, 0] : [0, 0.4],
-    1000
-  );
+  useChain([scaleSpringRef, translationSpringRef], [0.4, 0], 1000);
 
   return (
     <>

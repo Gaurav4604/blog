@@ -1,0 +1,230 @@
+---
+sidebar_position: 4
+slug: recipe-4
+description: A react spring tutorial for User Experience with use-gesture based gesture control
+authors:
+  - name: Gaurav Singh
+    title: creator of this site
+    url: https://github.com/Gaurav4604
+
+tags: [component-transitions, react, react-spring, use-gesture, gesture]
+---
+
+# Recipe 4
+
+import Dismissible from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/Dismissible";
+
+## What we're going to be building
+
+(hint: Dismissibles!)
+
+<Dismissible />
+
+## Code
+
+```tsx
+const Dismissible = () => {
+  const [springs, api] = useSprings(2, () => ({
+    x: 0,
+    height: 80,
+    scale: 0,
+    config: config.stiff,
+  }));
+
+  const [flung] = useState(() => new Set<number>());
+
+  const bind = useDrag(
+    ({
+      args: [index],
+      down,
+      movement: [mx],
+      direction: [xDir],
+      velocity: [xVel],
+    }) => {
+      const velocity = xVel;
+      if (!down && velocity > 1 && xDir === 1) flung.add(index);
+      api.start((i) => {
+        if (flung.has(i)) {
+          return {
+            x: 400,
+            height: 300,
+            scale: 300,
+          };
+        }
+        if (!flung.has(i) && i === index) {
+          if (xDir === 1) {
+            return {
+              x: down ? mx : 0,
+              height: down ? mx : 80,
+              scale: down ? mx : 0,
+              immediate: down,
+            };
+          } else if (!down) {
+            return {
+              x: 0,
+              height: 80,
+              scale: 0,
+            };
+          }
+        }
+      });
+      if (flung.size === 2 && !down) {
+        setTimeout(() => {
+          api.start((i) => ({
+            height: 80,
+            x: 0,
+            scale: 0,
+            delay: i === 1 ? 500 : 0,
+          }));
+          flung.clear();
+        }, 600);
+      }
+    }
+  );
+
+  return (
+    <>
+      {springs.map((props, index) => {
+        const height = props.height.to({
+          map: Math.abs,
+          range: [160, 280],
+          output: [80, 0],
+          extrapolate: "clamp",
+        });
+
+        const commonProps = {
+          borderRadius: 10,
+          touchAction: "none",
+          marginBottom: 10,
+        };
+
+        return (
+          <animated.div
+            key={index}
+            {...bind(index)}
+            style={{
+              x: props.x,
+              height,
+              width: 160,
+              backgroundColor: index ? "#ff6" : "#ff6d6d",
+              position: "relative",
+              ...commonProps,
+            }}
+          >
+            <animated.div
+              style={{
+                height,
+                width: 80,
+                scale: props.scale.to({
+                  map: Math.abs,
+                  range: [0, 280],
+                  output: [0, 1],
+                  extrapolate: "clamp",
+                }),
+                backgroundColor: index ? "#ff6d6d" : "#ff6",
+                position: "absolute",
+                ...commonProps,
+              }}
+            />
+          </animated.div>
+        );
+      })}
+    </>
+  );
+};
+```
+
+### Code Breakdown
+
+I know your first thoughts will be, "Woah! that's a lot of code",
+you're not wrong, but we're gonna go over it step by step. We're gonna use **react-spring**
+with **@use-gesture/react**
+(a gesture recognition library by the amazing developer who created react-spring).
+
+1. #### Animation _definition_
+
+```tsx
+const [springs, api] = useSprings(2, () => ({
+  x: 0,
+  height: 80,
+  scale: 0,
+  config: config.stiff,
+}));
+```
+
+You will notice, we've used `useSprings` instead of `useSpring`, since this better suits
+our use-case. `usSprings` is meant to handle an **array** of components that have the same _animation_
+configuration. In our case, we will be using 2 array items for our dismissibles.
+
+This time, we're using same configuration to animate multiple properties of components, such as
+
+- x
+- height
+- scale
+
+These properties will be applied to the components same as we have been doing in [recipe 1](./recipe-1) and [recipe 2](./recipe-2).
+
+**But**, You might have noticed, our list items have a **springy effect** on them when we release them after sliding,
+This is because of a property, `config`, config controls how the component value changes behave, similar to **bezier-curve**,
+except relying on **_spring physics_** instead. In our case we have assigned assigned `config` a value of `config.stiff`. This is because **react-spring**
+is meant to mimic (you guessed it) **springs**.<br/>
+NOTE: The config object is an _animation config preset_ object provided and imported from **react-spring** library.
+
+2. #### Animation _control_ (Part 1)
+
+```tsx
+const [flung] = useState(() => new Set<number>());
+
+const bind = useDrag(
+  ({
+    args: [index],
+    down,
+    movement: [mx],
+    direction: [xDir],
+    velocity: [xVel],
+  }) => {
+    const velocity = xVel;
+    if (!down && velocity > 1 && xDir === 1) flung.add(index);
+    api.start((i) => {
+      if (flung.has(i)) {
+        return {
+          x: 400,
+          height: 300,
+          scale: 300,
+        };
+      }
+      if (!flung.has(i) && i === index) {
+        if (xDir === 1) {
+          return {
+            x: down ? mx : 0,
+            height: down ? mx : 80,
+            scale: down ? mx : 0,
+            immediate: down,
+          };
+        } else if (!down) {
+          return {
+            x: 0,
+            height: 80,
+            scale: 0,
+          };
+        }
+      }
+    });
+    if (flung.size === 2 && !down) {
+      setTimeout(() => {
+        api.start((i) => ({
+          height: 80,
+          x: 0,
+          scale: 0,
+          delay: i === 1 ? 500 : 0,
+        }));
+        flung.clear();
+      }, 600);
+    }
+  }
+);
+```
+
+This looks new, right? Indeed! It is new, we're using **@use-gesture/react** library to map **animations** based on
+**user's gesture** on the component. In our case, we're trying to work with the _drag_ gesture, to identify swipe action
+on the list item.

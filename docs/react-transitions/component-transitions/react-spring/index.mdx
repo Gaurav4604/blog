@@ -8,11 +8,39 @@ import DocCard from "../../../../src/theme/DocCard";
 **react-spring** is a powerful react library that allows the user to create
 _imperative_ animations, on the components the user wants to animate.
 
-## Description
+## Introduction
 
 This is a set of recipes about how you can create an complex interactive react component using react-spring <br/>
+I'm going to assume you have knowledge about the following _React_ concepts.
+
+- Function Components
+- Hooks (useState, useEffect, customHooks)
+- HOCs [(Friendly intro to HOC architecture)](https://blog.logrocket.com/understanding-react-higher-order-components/)
+
+### Environment Setup
+
+Make sure you are using a React Application for these tutorials. <br/>
+[Learn about setting up React Application](https://create-react-app.dev/docs/getting-started/#creating-a-typescript-app)
+
+Make sure to have installed the following libraries.
+
+- [react-spring](https://react-spring.dev/)
+- [@use-gesture/react](https://use-gesture.netlify.app/docs/state/)
+
+Here's a shortcut for the same.
+
+```bash
+npm i react-spring @use-gesture/react
+```
 
 ## Recipes
+
+Each of the following recipes have
+
+- Interactive Preview
+- Code Section
+- Code Breakdown
+- Conclusion
 
 ### Recipe 1 (a box that slides around)
 
@@ -40,3 +68,35 @@ This is a set of recipes about how you can create an complex interactive react c
     description: "a box that shrinks and grows",
   }}
 />
+
+### Recipe 3 (HOC architecture for react-spring components)
+
+- here we apply an HOC architecture onto our components from [recipe 1](./recipe-1) and [recipe 2](./recipe-2),
+  and showcase how to orchestrate multiple transitions with timing delay, without much additional configuration.
+
+<DocCard
+  item={{
+    type: "link",
+    href: "./recipe-3",
+    label: "Recipe 3",
+    description: "HOC architecture for react-spring components",
+  }}
+/>
+
+### Recipe 4 (A list of swipe gesture based Dismissibles)
+
+- reusing the logic from [recipe 1](./recipe-1) and [recipe 2](./recipe-2), we build further understanding of how powerful
+  the react-spring library is, by using it along with @use-gesture/react, to build facinating swipe gesture based dismissibles list.
+
+<DocCard
+  item={{
+    type: "link",
+    href: "./recipe-4",
+    label: "Recipe 4",
+    description: "A list of swipe gesture based Dismissibles",
+  }}
+/>
+
+<br />
+NOTE: The recipes get increasingly interesting, and require more attention to understand
+what's happening, please make sure you focus on them accordingly.

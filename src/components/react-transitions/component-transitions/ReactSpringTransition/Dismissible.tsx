@@ -14,14 +14,7 @@ const Dismissible = () => {
 
   // Set the drag hook and define component movement based on gesture data
   const bind = useDrag(
-    ({
-      args: [index],
-      down,
-      movement: [mx],
-      direction: [xDir],
-      velocity: [xVel],
-    }) => {
-      const velocity = xVel;
+    ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
       if (!down && velocity > 1) flung.add(index);
       api.start((i) => {
         // if (springs[i].x.get() >= 300) console.log("destination");

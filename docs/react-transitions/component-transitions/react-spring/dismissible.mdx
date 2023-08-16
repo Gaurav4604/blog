@@ -34,16 +34,10 @@ const Dismissible = () => {
   const [flung] = useState(() => new Set<number>());
 
   const bind = useDrag(
-    ({
-      args: [index],
-      down,
-      movement: [mx],
-      direction: [xDir],
-      velocity: [xVel],
-    }) => {
-      const velocity = xVel;
-      if (!down && velocity > 1 && xDir === 1) flung.add(index);
+    ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
+      if (!down && velocity > 1) flung.add(index);
       api.start((i) => {
+        // if (springs[i].x.get() >= 300) console.log("destination");
         if (flung.has(i)) {
           return {
             x: 400,
@@ -51,21 +45,18 @@ const Dismissible = () => {
             scale: 300,
           };
         }
-        if (!flung.has(i) && i === index) {
-          if (xDir === 1) {
-            return {
-              x: down ? mx : 0,
-              height: down ? mx : 80,
-              scale: down ? mx : 0,
-              immediate: down,
-            };
-          } else if (!down) {
-            return {
-              x: 0,
-              height: 80,
-              scale: 0,
-            };
-          }
+        if (!flung.has(i) && i === index && springs[i].x.get() >= 0) {
+          return {
+            x: down ? mx : 0,
+            height: down ? mx : 80,
+            scale: down ? mx : 0,
+          };
+        } else if (!down) {
+          return {
+            x: 0,
+            height: 80,
+            scale: 0,
+          };
         }
       });
       if (flung.size === 2 && !down) {
@@ -168,7 +159,8 @@ These properties will be applied to the components same as we have been doing in
 This is because of a property, `config`, config controls how the component value changes behave, similar to **bezier-curve**,
 except relying on **_spring physics_** instead. In our case we have assigned assigned `config` a value of `config.stiff`. This is because **react-spring**
 is meant to mimic (you guessed it) **springs**.<br/>
-NOTE: The config object is an _animation config preset_ object provided and imported from **react-spring** library.
+NOTE: The config object is an _animation config preset_ object provided and imported from **react-spring** library. <br/>
+[Learn more about spring config here](https://react-spring.dev/docs/advanced/config).
 
 2. #### Animation _control_ (Part 1)
 
@@ -176,15 +168,8 @@ NOTE: The config object is an _animation config preset_ object provided and impo
 const [flung] = useState(() => new Set<number>());
 
 const bind = useDrag(
-  ({
-    args: [index],
-    down,
-    movement: [mx],
-    direction: [xDir],
-    velocity: [xVel],
-  }) => {
-    const velocity = xVel;
-    if (!down && velocity > 1 && xDir === 1) flung.add(index);
+  ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
+    if (!down && velocity > 1) flung.add(index);
     api.start((i) => {
       if (flung.has(i)) {
         return {
@@ -193,21 +178,18 @@ const bind = useDrag(
           scale: 300,
         };
       }
-      if (!flung.has(i) && i === index) {
-        if (xDir === 1) {
-          return {
-            x: down ? mx : 0,
-            height: down ? mx : 80,
-            scale: down ? mx : 0,
-            immediate: down,
-          };
-        } else if (!down) {
-          return {
-            x: 0,
-            height: 80,
-            scale: 0,
-          };
-        }
+      if (!flung.has(i) && i === index && springs[i].x.get() >= 0) {
+        return {
+          x: down ? mx : 0,
+          height: down ? mx : 80,
+          scale: down ? mx : 0,
+        };
+      } else if (!down) {
+        return {
+          x: 0,
+          height: 80,
+          scale: 0,
+        };
       }
     });
     if (flung.size === 2 && !down) {
@@ -225,6 +207,229 @@ const bind = useDrag(
 );
 ```
 
-This looks new, right? Indeed! It is new, we're using **@use-gesture/react** library to map **animations** based on
-**user's gesture** on the component. In our case, we're trying to work with the _drag_ gesture, to identify swipe action
-on the list item.
+A lot of the code here looks new, right? Indeed!
+A summary of this code section would be,
+
+- tracking of state on the **dismissibles**
+- action to be taken based on user's behaviour via a gesture
+- actual output definition, using the `api` handler
+- reset of state once list items are _flung_
+
+Now, lets expand upon the points we discussed during summarization of the section.
+
+1. ##### State Tracking
+
+```tsx
+const [flung] = useState(() => new Set<number>());
+```
+
+We're using a `Set` _data-structure_ to hold our state, for **dismissed indexes**, since the dismiss action should be recorded only once,
+we use a `Set`, as it only store **unique** values. We name it **flung** (since we're trying to _fling away_ our dismissibles).
+
+2. ##### Gesture Based Actions
+
+```tsx
+const bind = useDrag(
+  ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
+    if (!down && velocity > 1) flung.add(index);
+  }
+);
+```
+
+Our `useDrag` hook is a handler to returns `ReactDOMAttributes`, this means we can directed use the `bind` function inside the JSX elements which _support_
+**ReactDOMAttributes**, this is how **@use-gesture/react** is able to track gestures on the elements.
+
+`useDrag` gives us a lot of data about the **gesture**, to define exactly what we want to do, once the **gesture** is _triggered_. In our use-case, we
+want to know about the,
+
+- movement
+- velocity
+- if user is currently interacting with element (via `down` parameter)
+
+of the gesture in **on the x-axis**, <br/>
+Since, `bind` is a function that will be common across all list items, we need a way to identify which list item is being interacted with, we're doing
+this by passing our **list-item index** to `bind` when calling the function. <br/>
+[Learn more about what properties are available on the useDrag hook here.](https://use-gesture.netlify.app/docs/state/)
+
+With these things defined, we check, if the user is currently interacting with the element, if not, and if the element is flung with a **velocity >= 1**,
+we consider the element to be dismissed, thus adding this index to the `flung` Set.
+
+3. ##### Output using _react-spring_
+
+```tsx
+api.start((i) => {
+  if (flung.has(i)) {
+    return {
+      x: 400,
+      height: 300,
+      scale: 300,
+    };
+  }
+  if (!flung.has(i) && i === index && springs[i].x.get() >= 0) {
+    return {
+      x: down ? mx : 0,
+      height: down ? mx : 80,
+      scale: down ? mx : 0,
+    };
+  } else if (!down) {
+    return {
+      x: 0,
+      height: 80,
+      scale: 0,
+    };
+  }
+});
+```
+
+The `api` handler is an imperative api for triggering **react-spring** transitions. It triggers a transition based on the **config** provided.
+In our case, we want to trigger different transitions based on the index of the list item.
+
+- Case 1 (when the list item exists in the **flung** Set)
+
+  ```tsx
+  if (flung.has(i)) {
+    return {
+      x: 400,
+      height: 300,
+      scale: 300,
+    };
+  }
+  ```
+
+  We return a config with these values (more on the values later), flinging off the list item.
+
+- Case 2 (when the list item is interacted upon by grabbing and moving it)
+
+  ```tsx
+  if (!flung.has(i) && i === index && springs[i].x.get() >= 0) {
+    return {
+      x: down ? mx : 0,
+      height: down ? mx : 80,
+      scale: down ? mx : 0,
+    };
+  }
+  ```
+
+  We check if the user is interacting with an item, not present in the `flung` Set, if so, and he is interacting with the
+  element in the **positive x-axis**, we apply the movement value onto the element's transition values.
+
+- Case 3 (when the user releases the grabbed item)
+
+  ```tsx
+  else if (!down) {
+    return {
+      x: 0,
+      height: 80,
+      scale: 0,
+    };
+  }
+  ```
+
+  We already have a conditional `down ? mx : 0` statement that we use, in **case 2**, so why this? this is just a clean-up for the _side-effects_
+  of **case 1**, so that even if the user _flings_ the element, but doesn't release it, we should reset the value.
+
+4. ##### State Reset
+
+```tsx
+if (flung.size === 2 && !down) {
+  setTimeout(() => {
+    api.start((i) => ({
+      height: 80,
+      x: 0,
+      scale: 0,
+      delay: i === 1 ? 500 : 0,
+    }));
+    flung.clear();
+  }, 600);
+}
+```
+
+We simply check if our `flung` Set is full, and user is not currently interacting with the list, if that's the case
+then we reset the state of list items (after a delay of 600ms).
+
+3. #### Animation _control_ and Component declaration (Part 2)
+
+```tsx
+return (
+  <>
+    {springs.map((props, index) => {
+      const height = props.height.to({
+        map: Math.abs,
+        range: [160, 280],
+        output: [80, 0],
+        extrapolate: "clamp",
+      });
+
+      const commonProps = {
+        borderRadius: 10,
+        touchAction: "none",
+        marginBottom: 10,
+      };
+
+      return (
+        <animated.div
+          key={index}
+          {...bind(index)}
+          style={{
+            x: props.x,
+            height,
+            width: 160,
+            backgroundColor: index ? "#ff6" : "#ff6d6d",
+            position: "relative",
+            ...commonProps,
+          }}
+        >
+          <animated.div
+            style={{
+              height,
+              width: 80,
+              scale: props.scale.to({
+                map: Math.abs,
+                range: [0, 280],
+                output: [0, 1],
+                extrapolate: "clamp",
+              }),
+              backgroundColor: index ? "#ff6d6d" : "#ff6",
+              position: "absolute",
+              ...commonProps,
+            }}
+          />
+        </animated.div>
+      );
+    })}
+  </>
+);
+```
+
+This code section seems large but is quite simple, we simply apply our `useDrag` hook handler onto the actual JSX. Along with that we're **interpolating**
+our animation values, onto values we actually want the component to display.
+
+Example:
+
+```tsx
+props.scale.to({
+  map: Math.abs,
+  range: [0, 280],
+  output: [0, 1],
+  extrapolate: "clamp",
+});
+```
+
+Here we're defining input range to be between 0 - 200, and output range to be 0 - 1. The mapping function for value is `Math.abs`, to use the _absolute_
+input value. `extrapolate` is used to tell the component what to do, once we exceed the given input range. <br/>
+[Learn more about interpolation here.](https://react-spring.dev/docs/advanced/interpolation)
+
+All other properties are exactly the same as we have used before in [recipe 1](./recipe-1) and [recipe 2](./recipe-2).
+
+## Conclusion
+
+Phew! That was a lot of code and explanation, we covered a lot of concepts in this section, mainly,
+
+- useSprings hook
+- spring config
+- react-spring api based imperative animation triggers
+- interpolation
+- a bit about gesture control using @use-gesture/react
+
+This tutorial further elaborates how powerful react-spring is, in defining complex animations
+on components. I hope you enjoyed this tutorial and that this was informative.

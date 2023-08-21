@@ -1,41 +1,43 @@
 import { config, useSpring, animated } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import React, { PropsWithChildren, useState } from "react";
+import React, { PropsWithChildren, useEffect, useState } from "react";
 
-type Props = PropsWithChildren;
+type Props = {
+  onDismiss: () => void;
+} & PropsWithChildren;
 
 const Dismissible = (props: Props) => {
   const [spring, api] = useSpring(() => ({
-    x: 0,
-    height: 80,
-    scale: 0,
+    from: {
+      x: 0,
+      height: 80,
+      scale: 0,
+    },
     config: config.stiff,
   }));
 
   const [isDismissed, setIsDismissed] = useState(false);
 
   const bind = useDrag(({ down, movement: [mx], velocity: [velocity] }) => {
-    if (!down && velocity > 1) setIsDismissed(true);
+    let flingIt = false;
+    if (!down && velocity > 0.5) {
+      flingIt = true;
+    }
 
     api.start(() => {
-      if (isDismissed)
+      if (flingIt) {
+        props.onDismiss();
         return {
           x: 400,
           height: 300,
           scale: 300,
         };
-      else if (spring.x.get() >= 0) {
+      } else if (spring.x.get() >= 0) {
         return {
           x: down ? mx : 0,
           height: down ? mx : 80,
           scale: down ? mx : 0,
-          // immediate: down,
-        };
-      } else if (!down) {
-        return {
-          x: 0,
-          height: 80,
-          scale: 0,
+          immediate: down,
         };
       }
     });
@@ -58,7 +60,6 @@ const Dismissible = (props: Props) => {
   const commonProps = {
     borderRadius: 10,
     touchAction: "none",
-    marginBottom: 10,
   };
 
   return (
@@ -71,6 +72,7 @@ const Dismissible = (props: Props) => {
         backgroundColor: "#ff6d6d",
         position: "relative",
         ...commonProps,
+        marginBottom: "1rem",
       }}
     >
       <animated.div

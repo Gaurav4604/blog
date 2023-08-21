@@ -84,21 +84,20 @@ const Dismissible = (props: Props) => {
           position: "absolute",
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
           overflow: "hidden",
           ...commonProps,
         }}
       >
-        <animated.p
+        <animated.div
           style={{
             scale,
-            height: "100%",
-            width: "100%",
             fontSize: "2rem",
             color: "black",
           }}
         >
           {props.children}
-        </animated.p>
+        </animated.div>
       </animated.div>
     </animated.div>
   );

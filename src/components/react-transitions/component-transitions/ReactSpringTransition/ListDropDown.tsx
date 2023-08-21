@@ -13,12 +13,10 @@ const ListDropDown = (props: Props) => {
       from: { height: 0 },
       enter: { height: 80 },
       leave: { height: 0 },
-      trail: 400 / list.length,
+      trail: 200 / list.length,
       config: {
         duration: 100,
-        tension: 500,
       },
-      exitBeforeEnter: true,
     }),
     [list.length]
   );

@@ -1,5 +1,11 @@
-import { useTransition, animated, config } from "@react-spring/web";
-import React, { useEffect, useState } from "react";
+import {
+  useTransition,
+  animated,
+  config,
+  useSpringRef,
+  SpringRef,
+} from "@react-spring/web";
+import React, { useEffect, useRef, useState } from "react";
 import Dismissible from "./Dismissible";
 
 type Props = {};
@@ -49,3 +55,4 @@ const ListDropDown = (props: Props) => {
 };
 
 export default ListDropDown;
+// https://www.react-spring.dev/docs/advanced/spring-ref#function-call

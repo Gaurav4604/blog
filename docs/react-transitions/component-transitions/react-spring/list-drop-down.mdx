@@ -10,10 +10,26 @@ authors:
 tags: [component-transitions, react, react-spring, use-transition, lists]
 ---
 
-# Recipe 5 _Preview_
+# Recipe 5
 
 import ListDropDown from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ListDropDown";
 
+## What we're going to be building
+
 <ListDropDown />
 
-<div style={{ height: "1rem" }} />
+## Why Though?
+
+We just built a cool dismissible list in the [_previous recipe_](./recipe-4), and surely you're thinking,
+why Gaurav? why are we **rebuilding** our component again? Well, to that I say, open your web-inspector,
+and take a **closer** look at the dom tree, doesn't it seem strange, that our list, which we _dismissed_,
+still exists in the tree? <br/>
+Now we're getting closer to the issue, as you see, `useSpring` is very powerful while building _UI_ centric animations,
+and handling static data. _Sure_, with some smart logic, you can easily make it handle dynamic data as well, but according
+to the [react-spring docs](https://react-spring.dev/docs) we have a better **API hook** provided by the library to help us elegantly handle dynamic
+and complex lists of data.
+
+## Hero of this Recipe
+
+The `useTransition` api hook, is designed to elegantly handle **enter** and **exit** transitions for components based on dynamic list of data.
+Essentially, **react-spring** lets us avoid _choppy behaviour_, while _mounting_ and _unmounting_ our components based on data,

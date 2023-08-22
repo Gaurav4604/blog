@@ -23,7 +23,6 @@ const Dismissible = () => {
     }) => {
       if (!down && velocity > 1 && x === 1) flung.add(index);
       api.start((i) => {
-        // if (springs[i].x.get() >= 300) console.log("destination");
         if (flung.has(i)) {
           return {
             x: 400,

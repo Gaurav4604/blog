@@ -16,38 +16,38 @@ const Dismissible = (props: Props) => {
     config: config.stiff,
   }));
 
-  const [isDismissed, setIsDismissed] = useState(false);
-
-  const bind = useDrag(({ down, movement: [mx], velocity: [velocity] }) => {
-    let flingIt = false;
-    if (!down && velocity > 0.5) {
-      flingIt = true;
-    }
-
-    api.start(() => {
-      if (flingIt) {
-        props.onDismiss();
-        return {
-          x: 400,
-          height: 300,
-          scale: 300,
-        };
-      } else if (spring.x.get() >= 0) {
-        return {
-          x: down ? mx : 0,
-          height: down ? mx : 80,
-          scale: down ? mx : 0,
-          immediate: down,
-        };
-      } else if (!down) {
-        return {
-          x: 0,
-          height: 80,
-          scale: 0,
-        };
+  const bind = useDrag(
+    ({ down, movement: [mx], velocity: [velocity], direction: [x] }) => {
+      let flingIt = false;
+      if (!down && velocity > 0.5 && x === 1) {
+        flingIt = true;
       }
-    });
-  });
+
+      api.start(() => {
+        if (flingIt) {
+          props.onDismiss();
+          return {
+            x: 400,
+            height: 300,
+            scale: 300,
+          };
+        } else if (spring.x.get() >= 0) {
+          return {
+            x: down ? mx : 0,
+            height: down ? mx : 80,
+            scale: down ? mx : 0,
+            immediate: down,
+          };
+        } else if (!down) {
+          return {
+            x: 0,
+            height: 80,
+            scale: 0,
+          };
+        }
+      });
+    }
+  );
 
   const height = spring.height.to({
     map: Math.abs,

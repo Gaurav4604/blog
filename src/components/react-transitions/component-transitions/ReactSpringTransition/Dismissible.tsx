@@ -12,16 +12,6 @@ import React, { PropsWithChildren } from "react";
 
 type Props = {
   onDismiss: () => void;
-  onChange: (
-    result: AnimationResult<SpringValue<Lookup<any>>>,
-    ctrl: Controller<Lookup<any>>,
-    item: undefined
-  ) => void;
-  // onResolve: (
-  //   result: AnimationResult<SpringValue<Lookup<any>>>,
-  //   ctrl: Controller<Lookup<any>>,
-  //   item: undefined
-  // ) => void;
 } & PropsWithChildren;
 
 const Dismissible = (props: Props) => {
@@ -31,7 +21,6 @@ const Dismissible = (props: Props) => {
       height: 80,
       scale: 0,
     },
-    onChange: props.onChange,
     config: config.stiff,
   }));
 
@@ -44,7 +33,6 @@ const Dismissible = (props: Props) => {
 
       api.start(() => {
         if (flingIt) {
-          // props.onDismiss
           return {
             x: 400,
             height: 300,

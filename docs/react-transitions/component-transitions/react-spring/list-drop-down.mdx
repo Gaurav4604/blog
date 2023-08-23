@@ -16,10 +16,20 @@ import ListDropDown from "../../../../src/components/react-transitions/component
 import { useState } from "react";
 
 export function ListController() {
-  const [initialList, setInitialList] = useState(["hi", "data", "bye"]);
+  const [initialList, setInitialList] = useState(["one", "two", "three"]);
   return (
     <React.Fragment>
-      <button onClick={() => setInitialList([...initialList])}>
+      <button
+        onClick={() => {
+          const listA = ["one", "two", "three"];
+          const listB = ["four", "five", "six"];
+          if (initialList.includes("one")) {
+            setInitialList(listB);
+          } else {
+            setInitialList(listA);
+          }
+        }}
+      >
         reset list
       </button>
       <ListDropDown initialList={initialList} />

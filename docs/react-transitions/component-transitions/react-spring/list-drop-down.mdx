@@ -13,10 +13,23 @@ tags: [component-transitions, react, react-spring, use-transition, lists]
 # Recipe 5
 
 import ListDropDown from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ListDropDown";
+import { useState } from "react";
+
+export function ListController() {
+  const [initialList, setInitialList] = useState(["hi", "data", "bye"]);
+  return (
+    <React.Fragment>
+      <button onClick={() => setInitialList([...initialList])}>
+        reset list
+      </button>
+      <ListDropDown initialList={initialList} />
+    </React.Fragment>
+  );
+}
+
+<ListController />
 
 ## What we're going to be building
-
-<ListDropDown />
 
 ## Why Though?
 

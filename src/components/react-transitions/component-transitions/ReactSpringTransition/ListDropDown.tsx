@@ -7,24 +7,32 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import Dismissible from "./Dismissible";
 
-const ListDropDown = () => {
-  const [list, setList] = useState(["hi", "data", "bye"]);
+type Props = {
+  initialList: string[];
+};
+const ListDropDown = (props: Props) => {
+  const [list, setList] = useState<string[]>(["hi", "data", "bye"]);
 
   const [transitions, api] = useTransition(
     list,
     () => ({
+      key: (item) => item,
       from: { height: 0 },
       enter: { height: 80 },
       leave: { height: 0 },
       trail: 200 / list.length,
-      config: config.wobbly,
+      config: config.stiff,
     }),
-    [list.length]
+    [list]
   );
 
   useEffect(() => {
     api.start();
   }, [list.length]);
+
+  useEffect(() => {
+    setList(props.initialList);
+  }, [props.initialList]);
 
   return transitions((styles, item, _, index) => (
     <animated.div

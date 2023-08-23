@@ -17,21 +17,23 @@ type Props = {
     ctrl: Controller<Lookup<any>>,
     item: undefined
   ) => void;
+  // onResolve: (
+  //   result: AnimationResult<SpringValue<Lookup<any>>>,
+  //   ctrl: Controller<Lookup<any>>,
+  //   item: undefined
+  // ) => void;
 } & PropsWithChildren;
 
 const Dismissible = (props: Props) => {
-  const [spring, api] = useSpring(
-    () => ({
-      from: {
-        x: 0,
-        height: 80,
-        scale: 0,
-      },
-      onChange: props.onChange,
-      config: config.wobbly,
-    }),
-    [props.children]
-  );
+  const [spring, api] = useSpring(() => ({
+    from: {
+      x: 0,
+      height: 80,
+      scale: 0,
+    },
+    onChange: props.onChange,
+    config: config.stiff,
+  }));
 
   const bind = useDrag(
     ({ down, movement: [mx], velocity: [velocity], direction: [x] }) => {
@@ -42,11 +44,12 @@ const Dismissible = (props: Props) => {
 
       api.start(() => {
         if (flingIt) {
-          props.onDismiss();
+          // props.onDismiss
           return {
             x: 400,
             height: 300,
             scale: 300,
+            onResolve: props.onDismiss,
           };
         } else if (spring.x.get() >= 0) {
           return {

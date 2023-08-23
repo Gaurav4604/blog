@@ -2,16 +2,13 @@ import {
   useTransition,
   animated,
   config,
-  useSpringRef,
-  SpringRef,
+  SpringValue,
 } from "@react-spring/web";
 import React, { useEffect, useRef, useState } from "react";
 import Dismissible from "./Dismissible";
 
-type Props = {};
-
-const ListDropDown = (props: Props) => {
-  const [list, setList] = useState([1, 2, 3]);
+const ListDropDown = () => {
+  const [list, setList] = useState(["hi", "data", "bye"]);
 
   const [transitions, api] = useTransition(
     list,
@@ -20,9 +17,7 @@ const ListDropDown = (props: Props) => {
       enter: { height: 80 },
       leave: { height: 0 },
       trail: 200 / list.length,
-      config: {
-        duration: 100,
-      },
+      config: config.wobbly,
     }),
     [list.length]
   );
@@ -31,7 +26,7 @@ const ListDropDown = (props: Props) => {
     api.start();
   }, [list.length]);
 
-  return transitions((styles, item) => (
+  return transitions((styles, item, _, index) => (
     <animated.div
       style={{
         ...styles,
@@ -46,6 +41,21 @@ const ListDropDown = (props: Props) => {
       <Dismissible
         onDismiss={() => {
           setList((list) => list.filter((itm) => itm !== item));
+        }}
+        onChange={(res) => {
+          api.start((i) => {
+            if (i === index) {
+              return {
+                height: new SpringValue(res.value.height).to({
+                  map: Math.abs,
+                  range: [160, 280],
+                  output: [80, 0],
+                  extrapolate: "clamp",
+                }),
+                immediate: true,
+              };
+            }
+          });
         }}
       >
         {item}

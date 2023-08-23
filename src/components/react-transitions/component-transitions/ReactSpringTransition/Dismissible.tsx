@@ -1,20 +1,37 @@
-import { config, useSpring, animated } from "@react-spring/web";
+import {
+  config,
+  useSpring,
+  animated,
+  Lookup,
+  AnimationResult,
+  SpringValue,
+  Controller,
+} from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
-import React, { PropsWithChildren, useEffect, useState } from "react";
+import React, { PropsWithChildren } from "react";
 
 type Props = {
   onDismiss: () => void;
+  onChange: (
+    result: AnimationResult<SpringValue<Lookup<any>>>,
+    ctrl: Controller<Lookup<any>>,
+    item: undefined
+  ) => void;
 } & PropsWithChildren;
 
 const Dismissible = (props: Props) => {
-  const [spring, api] = useSpring(() => ({
-    from: {
-      x: 0,
-      height: 80,
-      scale: 0,
-    },
-    config: config.stiff,
-  }));
+  const [spring, api] = useSpring(
+    () => ({
+      from: {
+        x: 0,
+        height: 80,
+        scale: 0,
+      },
+      onChange: props.onChange,
+      config: config.wobbly,
+    }),
+    [props.children]
+  );
 
   const bind = useDrag(
     ({ down, movement: [mx], velocity: [velocity], direction: [x] }) => {
@@ -108,5 +125,4 @@ const Dismissible = (props: Props) => {
     </animated.div>
   );
 };
-
 export default Dismissible;

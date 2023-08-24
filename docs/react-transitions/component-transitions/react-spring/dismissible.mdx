@@ -34,8 +34,14 @@ const Dismissible = () => {
   const [flung] = useState(() => new Set<number>());
 
   const bind = useDrag(
-    ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
-      if (!down && velocity > 1) flung.add(index);
+    ({
+      args: [index],
+      down,
+      movement: [mx],
+      velocity: [velocity],
+      direction: [x],
+    }) => {
+      if (!down && velocity > 1 && x === 1) flung.add(index);
       api.start((i) => {
         if (flung.has(i)) {
           return {
@@ -167,8 +173,14 @@ NOTE: The config object is an _animation config preset_ object provided and impo
 const [flung] = useState(() => new Set<number>());
 
 const bind = useDrag(
-  ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
-    if (!down && velocity > 1) flung.add(index);
+  ({
+    args: [index],
+    down,
+    movement: [mx],
+    velocity: [velocity],
+    direction: [x],
+  }) => {
+    if (!down && velocity > 1 && x === 1) flung.add(index);
     api.start((i) => {
       if (flung.has(i)) {
         return {
@@ -229,8 +241,14 @@ we use a `Set`, as it only store **unique** values. We name it **flung** (since 
 
 ```tsx
 const bind = useDrag(
-  ({ args: [index], down, movement: [mx], velocity: [velocity] }) => {
-    if (!down && velocity > 1) flung.add(index);
+  ({
+    args: [index],
+    down,
+    movement: [mx],
+    velocity: [velocity],
+    direction: [x],
+  }) => {
+    if (!down && velocity > 1 && x === 1) flung.add(index);
   }
 );
 ```
@@ -243,6 +261,7 @@ want to know about the,
 
 - movement
 - velocity
+- direction of movement
 - if user is currently interacting with element (via `down` parameter)
 
 of the gesture in **on the x-axis**, <br/>
@@ -325,7 +344,7 @@ In our case, we want to trigger different transitions based on the index of the 
   ```
 
   We already have a conditional `down ? mx : 0` statement that we use, in **case 2**, so why this? this is just a clean-up for the _side-effects_
-  of **case 1**, so that even if the user _flings_ the element, but doesn't release it, we should reset the value.
+  of **case 2**, so that even if the user **flings** the element in **_negative x-axis_** and releases it, we should reset the value.
 
 4. ##### State Reset
 

@@ -16,9 +16,9 @@ const ListDropDown = (props: Props) => {
   const [transitions, api] = useTransition(
     list,
     () => ({
-      from: { height: 0 },
-      enter: { height: 80 },
-      leave: { height: 0 },
+      from: { maxHeight: 0 },
+      enter: { maxHeight: 80 },
+      leave: { maxHeight: 0 },
       trail: 200 / list.length,
       config: config.stiff,
     }),
@@ -40,7 +40,7 @@ const ListDropDown = (props: Props) => {
     <animated.div
       style={{
         ...styles,
-        marginBottom: styles.height.to({
+        marginBottom: styles.maxHeight.to({
           map: Math.abs,
           range: [0, 80],
           output: [0, 10],

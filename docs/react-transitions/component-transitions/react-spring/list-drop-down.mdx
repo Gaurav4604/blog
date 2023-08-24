@@ -44,7 +44,7 @@ export function ListController() {
 ## Why Though?
 
 We just built a cool dismissible list in the [_previous recipe_](./recipe-4), and surely you're thinking,
-why Gaurav? why are we **rebuilding** our component again? Well, to that I say, open your web-inspector,
+why Gaurav? why are we **rebuilding** our component again? Well, we're not, open your web-inspector,
 and take a **closer** look at the dom tree, doesn't it seem strange, that our list, which we _dismissed_,
 still exists in the tree? <br/>
 Now we're getting closer to the issue, as you see, `useSpring` is very powerful while building _UI_ centric animations,
@@ -56,3 +56,173 @@ and complex lists of data.
 
 The `useTransition` api hook, is designed to elegantly handle **enter** and **exit** transitions for components based on dynamic list of data.
 Essentially, **react-spring** lets us avoid _choppy behaviour_, while _mounting_ and _unmounting_ our components based on data.
+
+**NOTE**: We will use _some hacky solutions_ to make `useTransition` work according to our specifications.
+
+## Code (Part 1)
+
+```tsx
+type Props = {
+  onDismiss: () => void;
+} & PropsWithChildren;
+
+const Dismissible = (props: Props) => {
+  const [spring, api] = useSpring(() => ({
+    from: {
+      x: 0,
+      height: 80,
+      scale: 0,
+    },
+    config: config.stiff,
+  }));
+
+  const bind = useDrag(
+    ({ down, movement: [mx], velocity: [velocity], direction: [x] }) => {
+      let flingIt = false;
+      if (!down && velocity > 0.5 && x === 1) {
+        flingIt = true;
+      }
+
+      api.start(() => {
+        if (flingIt) {
+          return {
+            x: 400,
+            height: 300,
+            scale: 300,
+            onResolve: props.onDismiss,
+          };
+        } else if (spring.x.get() >= 0) {
+          return {
+            x: down ? mx : 0,
+            height: down ? mx : 80,
+            scale: down ? mx : 0,
+            immediate: down,
+          };
+        } else if (!down) {
+          return {
+            x: 0,
+            height: 80,
+            scale: 0,
+          };
+        }
+      });
+    }
+  );
+
+  const height = spring.height.to({
+    map: Math.abs,
+    range: [160, 280],
+    output: [80, 0],
+    extrapolate: "clamp",
+  });
+
+  const scale = spring.scale.to({
+    map: Math.abs,
+    range: [0, 280],
+    output: [0, 1],
+    extrapolate: "clamp",
+  });
+
+  const commonProps = {
+    borderRadius: 10,
+    touchAction: "none",
+  };
+
+  return (
+    <animated.div
+      {...bind()}
+      style={{
+        x: spring.x,
+        height,
+        width: 160,
+        backgroundColor: "#ff6d6d",
+        position: "relative",
+        ...commonProps,
+        marginBottom: "1rem",
+      }}
+    >
+      <animated.div
+        style={{
+          height,
+          width: 80,
+          scale,
+          backgroundColor: "#ff6",
+          position: "absolute",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          ...commonProps,
+        }}
+      >
+        <animated.div
+          style={{
+            scale,
+            fontSize: "2rem",
+            color: "black",
+          }}
+        >
+          {props.children}
+        </animated.div>
+      </animated.div>
+    </animated.div>
+  );
+};
+export default Dismissible;
+```
+
+### Code Breakdown
+
+1. #### Finding the similarities:
+
+   This code, looks quite similar to the [Dismissible](./recipe-4), we just built. So then, what's changed?
+   If you take a look at the code, you will see, we're using `useSpring` instead of `useSprings`, since now, our **goal**, is to make a reusable, _atomic_
+   dismissible, and we're remdering a single component, instead of a component array.
+
+2. #### Logic Required for Reusability
+
+   Since the only goal of our component is to be _dismissed_, we add a `onDismiss` callback handler to the props.
+   We will discuss **when** and **where** to _fire_ this callback down below.
+
+   ```tsx
+   type Props = {
+     onDismiss: () => void; // <--- this
+   } & PropsWithChildren;
+   ```
+
+3. #### Handling the Dismiss Action UI state
+
+   In [Recipe 4](./recipe-4) we wanted to track state of _dismiss action triggered_ across the component, and thus we used `useState` to keep track of the same.
+   In the current case though, we simply need to know about _dismiss action triggered_ , over the course of the **callback function inside `drag` handle**.
+   We've used a simple flag, aptly named `flingIt`. That is set to `true`, if the user _flings_ the dismissible.
+
+   ```tsx
+   let flingIt = false; // <--- this
+   if (!down && velocity > 0.5 && x === 1) {
+     flingIt = true;
+   }
+   ```
+
+4. #### Handling the Dismiss Action Callback
+
+   The other major change, that might not be very visible to the eye, is when we've fired our `onDismiss` callback. This last but not the least, change is very important
+   in explaining how **react-spring** actually handles animations and why it is said to be an _optimised way to handle animations_. <br/>
+   As you can see, we're firing our `onDismiss` callback, `onResolve` of the animation. This is because, the animation controllers are _async_ in nature, and **do not block**
+   the main code execution. Since `async` functions are _Promises_, they need to be `rejected` or `resolved`, in order for the _main thread_ to take notice.
+
+   ```tsx
+   if (flingIt) {
+     return {
+       x: 400,
+       height: 300,
+       scale: 300,
+       onResolve: props.onDismiss, // <--- this
+     };
+   }
+   ```
+
+## Conclusion (Part 1)
+
+That about explains the changes we have made, to the `Dismissible` to make it more reusable.
+There are a few other changes done as well, but you should be able to easily grasp them, since we have
+covered all of the same in previous recipes. You can find the list of the same [here](../react-spring#recipes).

@@ -44,7 +44,6 @@ const Dismissible = (props: Props) => {
             x: down ? mx : 0,
             height: down ? mx : 80,
             scale: down ? mx : 0,
-            immediate: down,
           };
         } else if (!down) {
           return {

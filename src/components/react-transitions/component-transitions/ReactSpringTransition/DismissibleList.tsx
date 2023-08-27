@@ -10,7 +10,7 @@ import Dismissible from "./Dismissible";
 type Props = {
   initialList: string[];
 };
-const ListDropDown = (props: Props) => {
+const DismissibleList = (props: Props) => {
   const [list, setList] = useState<string[]>([]);
 
   const [transitions, api] = useTransition(
@@ -36,7 +36,7 @@ const ListDropDown = (props: Props) => {
     });
   }, [props.initialList]);
 
-  return transitions((styles, item, _, index) => (
+  return transitions((styles, item) => (
     <animated.div
       style={{
         ...styles,
@@ -60,5 +60,5 @@ const ListDropDown = (props: Props) => {
   ));
 };
 
-export default ListDropDown;
+export default DismissibleList;
 // https://www.react-spring.dev/docs/advanced/spring-ref#function-call

@@ -12,7 +12,7 @@ tags: [component-transitions, react, react-spring, use-transition, lists]
 
 # (V) Dismissible List
 
-import ListDropDown from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/ListDropDown";
+import DismissibleList from "../../../../src/components/react-transitions/component-transitions/ReactSpringTransition/DismissibleList";
 import { useState } from "react";
 
 export function ListController() {
@@ -32,7 +32,7 @@ export function ListController() {
       >
         reset list
       </button>
-      <ListDropDown initialList={initialList} />
+      <DismissibleList initialList={initialList} />
     </React.Fragment>
   );
 }
@@ -226,3 +226,153 @@ That about explains the changes we have made, to the `Dismissible` to make it mo
 There are a few other changes done as well, but you should be able to easily grasp them, since we have
 covered all of the same in previous recipes. You can find the list of the same [here](../react-spring#recipes).
 Lets now move onto the `useTransition` hook for the actual list rendering.
+
+## Code (Part 2)
+
+```tsx
+type Props = {
+  initialList: string[];
+};
+const DismissibleList = (props: Props) => {
+  const [list, setList] = useState<string[]>([]);
+
+  const [transitions, api] = useTransition(
+    list,
+    () => ({
+      from: { maxHeight: 0 },
+      enter: { maxHeight: 80 },
+      leave: { maxHeight: 0 },
+      trail: 200 / list.length,
+      config: config.stiff,
+    }),
+    [list.length]
+  );
+
+  useEffect(() => {
+    api.start();
+  }, [list.length]);
+
+  useEffect(() => {
+    setList([]);
+    setTimeout(() => {
+      setList(props.initialList);
+    });
+  }, [props.initialList]);
+
+  return transitions((styles, item) => (
+    <animated.div
+      style={{
+        ...styles,
+        marginBottom: styles.maxHeight.to({
+          map: Math.abs,
+          range: [0, 80],
+          output: [0, 10],
+          extrapolate: "clamp",
+        }),
+      }}
+      key={item}
+    >
+      <Dismissible
+        onDismiss={() => {
+          setList((list) => list.filter((itm) => itm !== item));
+        }}
+      >
+        {item}
+      </Dismissible>
+    </animated.div>
+  ));
+};
+
+export default DismissibleList;
+```
+
+### Code Breakdown
+
+1. #### Definition Enter/Exit Transitions and Component State
+
+   As you can see in the code-block below, we're defining an internal state for a list, for `useTransition` hook to use. You might ask, _why is this important?_
+   The answer lies, in how useTransition tracks list data, since we want to be able to **replace** and **reuse** our component, more than once, we need to show
+   `useTransition`, that our list at some point will be **empty**, and **_only then, new data will be accepted by the `useTransition` hook._ **(This is part 1 of our hack for reusable list)
+
+   We're also defining parameters for the `useTransition` hook:
+
+   1. We've seen `from` be used before in previous recipes, this parameter is simply used to define the initial state of the **list-item**
+   2. `enter` is `useTransition`'s equivalent to `to` in `useSpring`, it is the state, onto which the list-item will transition to.
+   3. `leave` is a special parameter `useTransition` uses to **_unmount_** a _list-item_ from the **DOM tree** with a _transition_.
+   4. `trail` is also a special parameter, which allows _delay_ to be introduced, during the _mounting_ of **list-item**.
+   5. We've seen `config` be used before, it allows our defined transitions to use _spring_ physics. <br/><br/>
+
+   ```tsx
+   const [list, setList] = useState<string[]>([]);
+
+   const [transitions, api] = useTransition(
+     list,
+     () => ({
+       from: { maxHeight: 0 },
+       enter: { maxHeight: 80 },
+       leave: { maxHeight: 0 },
+       trail: 200 / list.length,
+       config: config.stiff,
+     }),
+     [list.length]
+   );
+   ```
+
+2. #### Data Input and Animation Trigger
+
+   This one's all about how we use _side effects_ to achieve a _smooth list lifecycle_.
+
+   1. Our first `useEffect` is used to trigger the `useTransition` **api**
+      to start the animation process on the `list` anytime there's changes to the list length.
+
+   2. The second `useEffect` is the hacky `useEffect`, this one is used to tell `useTransition` hook, that the list has been **cleared**, _so it should
+      replace, the list data it tracks internally_, with new data, provided by the **state**.
+
+   ```tsx
+   useEffect(() => {
+     api.start();
+   }, [list.length]);
+
+   useEffect(() => {
+     setList([]);
+     setTimeout(() => {
+       setList(props.initialList);
+     });
+   }, [props.initialList]);
+   ```
+
+3. #### Component Rendering
+
+   The component render, is pretty similar to how `useSprings` wants components to be rendered, **except** that `useTransition` actually wants us to render **the same component**
+   as a _list_, thus it takes creates a function api for us to use, which takes our _list-item JSX as function parameter_.
+
+   ```tsx
+   return transitions((styles, item) => (
+     <animated.div
+       style={{
+         ...styles,
+         marginBottom: styles.maxHeight.to({
+           map: Math.abs,
+           range: [0, 80],
+           output: [0, 10],
+           extrapolate: "clamp",
+         }),
+       }}
+       key={item}
+     >
+       <Dismissible
+         onDismiss={() => {
+           setList((list) => list.filter((itm) => itm !== item));
+         }}
+       >
+         {item}
+       </Dismissible>
+     </animated.div>
+   ));
+   ```
+
+## Conclusion (Part 2)
+
+Phew! That was a lot of information! I hope you found it useful, this is us barely scratching the surface with the potential of `react-spring` as
+a animation library for `React`. There's a lot more you can do, but most of the components you will build, will end up using this core logic, thus make
+sure to use this as a reference while building your projects! Cheers!

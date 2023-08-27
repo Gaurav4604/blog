@@ -13,27 +13,16 @@ type Props = {
 const DismissibleList = (props: Props) => {
   const [list, setList] = useState<string[]>([]);
 
-  const [transitions, api] = useTransition(
-    list,
-    () => ({
-      from: { maxHeight: 0 },
-      enter: { maxHeight: 80 },
-      leave: { maxHeight: 0 },
-      trail: 200 / list.length,
-      config: config.stiff,
-    }),
-    [list.length]
-  );
+  const transitions = useTransition(list, {
+    from: { maxHeight: 0 },
+    enter: { maxHeight: 80 },
+    leave: { maxHeight: 0 },
+    trail: 200 / list.length,
+    config: config.stiff,
+  });
 
   useEffect(() => {
-    api.start();
-  }, [list.length]);
-
-  useEffect(() => {
-    setList([]);
-    setTimeout(() => {
-      setList(props.initialList);
-    });
+    setList(props.initialList);
   }, [props.initialList]);
 
   return transitions((styles, item) => (

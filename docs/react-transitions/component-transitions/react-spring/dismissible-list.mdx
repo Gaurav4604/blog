@@ -236,27 +236,16 @@ type Props = {
 const DismissibleList = (props: Props) => {
   const [list, setList] = useState<string[]>([]);
 
-  const [transitions, api] = useTransition(
-    list,
-    () => ({
-      from: { maxHeight: 0 },
-      enter: { maxHeight: 80 },
-      leave: { maxHeight: 0 },
-      trail: 200 / list.length,
-      config: config.stiff,
-    }),
-    [list.length]
-  );
+  const transitions = useTransition(list, {
+    from: { maxHeight: 0 },
+    enter: { maxHeight: 80 },
+    leave: { maxHeight: 0 },
+    trail: 200 / list.length,
+    config: config.stiff,
+  });
 
   useEffect(() => {
-    api.start();
-  }, [list.length]);
-
-  useEffect(() => {
-    setList([]);
-    setTimeout(() => {
-      setList(props.initialList);
-    });
+    setList(props.initialList);
   }, [props.initialList]);
 
   return transitions((styles, item) => (
@@ -305,43 +294,20 @@ export default DismissibleList;
    ```tsx
    const [list, setList] = useState<string[]>([]);
 
-   const [transitions, api] = useTransition(
-     list,
-     () => ({
-       from: { maxHeight: 0 },
-       enter: { maxHeight: 80 },
-       leave: { maxHeight: 0 },
-       trail: 200 / list.length,
-       config: config.stiff,
-     }),
-     [list.length]
-   );
-   ```
-
-2. #### Data Input and Animation Trigger
-
-   This one's all about how we use _side effects_ to achieve a _smooth list lifecycle_.
-
-   1. Our first `useEffect` is used to trigger the `useTransition` **api**
-      to start the animation process on the `list` anytime there's changes to the list length.
-
-   2. The second `useEffect` is the hacky `useEffect`, this one is used to tell `useTransition` hook, that the list has been **cleared**, _so it should
-      replace, the list data it tracks internally_, with new data, provided by the **state**.
-
-   ```tsx
-   useEffect(() => {
-     api.start();
-   }, [list.length]);
+   const transitions = useTransition(list, {
+     from: { maxHeight: 0 },
+     enter: { maxHeight: 80 },
+     leave: { maxHeight: 0 },
+     trail: 200 / list.length,
+     config: config.stiff,
+   });
 
    useEffect(() => {
-     setList([]);
-     setTimeout(() => {
-       setList(props.initialList);
-     });
+     setList(props.initialList);
    }, [props.initialList]);
    ```
 
-3. #### Component Rendering
+2. #### Component Rendering
 
    The component render, is pretty similar to how `useSprings` wants components to be rendered, **except** that `useTransition` actually wants us to render **the same component**
    as a _list_, thus it takes creates a function api for us to use, which takes our _list-item JSX as function parameter_.

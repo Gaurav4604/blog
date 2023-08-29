@@ -50,4 +50,3 @@ const DismissibleList = (props: Props) => {
 };
 
 export default DismissibleList;
-// https://www.react-spring.dev/docs/advanced/spring-ref#function-call
